@@ -1,79 +1,48 @@
 <script>
   import logo from './assets/images/logo-universal.png'
-  import {Greet} from '../wailsjs/go/main/App.js'
+  import { SelectDirectory, SetConfig, GetConfig } from '../wailsjs/go/main/App.js'
+  import { onMount } from 'svelte';
 
-  let resultText = "Please enter your name below 👇"
-  let name
+  let resultText = "Please select a directory"
+  let collectionPath;
+  let devicePath;
 
-  function greet() {
-    Greet(name).then(result => resultText = result)
+  let config = {
+    CollectionPath: '',
+    DevicePath: ''
+  };
+
+  function setCollectionPath() {
+    SelectDirectory().then(path => collectionPath = path);
   }
+
+  function setDevicePath() {
+    SelectDirectory().then(path => devicePath = path);
+  }
+
+  function setConfig() {
+    SetConfig(collectionPath, devicePath).then(() => getConfig());
+  }
+
+  function getConfig() {
+    GetConfig().then(c => config = c);
+  }
+
+  onMount(() => getConfig());
 </script>
 
 <main>
-  <img alt="Wails logo" id="logo" src="{logo}">
-  <div class="result" id="result">{resultText}</div>
-  <div class="input-box" id="input">
-    <input autocomplete="off" bind:value={name} class="input" id="name" type="text"/>
-    <button class="btn" on:click={greet}>Greet</button>
-  </div>
+  <div class="result">Collection: {config.CollectionPath}</div>
+  <div class="result">Device: {config.DevicePath}</div>
+  <button class="btn" on:click={setCollectionPath}>Select Collection</button>
+  <button class="btn" on:click={setDevicePath}>Select Device</button>
+  <button class="btn" on:click={setConfig}>Set Config</button>
 </main>
 
 <style>
-
-  #logo {
-    display: block;
-    width: 50%;
-    height: 50%;
-    margin: auto;
-    padding: 10% 0 0;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    background-origin: content-box;
-  }
-
   .result {
     height: 20px;
     line-height: 20px;
     margin: 1.5rem auto;
   }
-
-  .input-box .btn {
-    width: 60px;
-    height: 30px;
-    line-height: 30px;
-    border-radius: 3px;
-    border: none;
-    margin: 0 0 0 20px;
-    padding: 0 8px;
-    cursor: pointer;
-  }
-
-  .input-box .btn:hover {
-    background-image: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);
-    color: #333333;
-  }
-
-  .input-box .input {
-    border: none;
-    border-radius: 3px;
-    outline: none;
-    height: 30px;
-    line-height: 30px;
-    padding: 0 10px;
-    background-color: rgba(240, 240, 240, 1);
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .input-box .input:hover {
-    border: none;
-    background-color: rgba(255, 255, 255, 1);
-  }
-
-  .input-box .input:focus {
-    border: none;
-    background-color: rgba(255, 255, 255, 1);
-  }
-
 </style>

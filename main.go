@@ -6,10 +6,14 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+  "github.com/wailsapp/wails/v2/pkg/options/linux"
 )
 
 //go:embed all:frontend/dist
 var assets embed.FS
+
+//go:embed build/appicon.png
+var icon []byte
 
 func main() {
 	// Create an instance of the app structure
@@ -17,9 +21,9 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "music-organizer-wails",
-		Width:  1024,
-		Height: 768,
+		Title:  "Music Organizer",
+		Width:  1500,
+		Height: 850,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
@@ -28,6 +32,9 @@ func main() {
 		Bind: []interface{}{
 			app,
 		},
+    Linux: &linux.Options{
+      Icon: icon,
+    },
 	})
 
 	if err != nil {
