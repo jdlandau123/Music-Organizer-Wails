@@ -9,3 +9,5 @@ export function InitDb():Promise<void>;
 export function SelectDirectory():Promise<string>;
 
 export function SetConfig(arg1:main.Config):Promise<void>;
+
+export function SyncMusicCollection():Promise<void>;

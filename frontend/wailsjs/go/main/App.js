@@ -17,3 +17,7 @@ export function SelectDirectory() {
 export function SetConfig(arg1) {
   return window['go']['main']['App']['SetConfig'](arg1);
 }
+
+export function SyncMusicCollection() {
+  return window['go']['main']['App']['SyncMusicCollection']();
+}
