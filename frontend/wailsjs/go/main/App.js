@@ -14,6 +14,6 @@ export function SelectDirectory() {
   return window['go']['main']['App']['SelectDirectory']();
 }
 
-export function SetConfig(arg1, arg2) {
-  return window['go']['main']['App']['SetConfig'](arg1, arg2);
+export function SetConfig(arg1) {
+  return window['go']['main']['App']['SetConfig'](arg1);
 }

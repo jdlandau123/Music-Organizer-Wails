@@ -8,4 +8,4 @@ export function InitDb():Promise<void>;
 
 export function SelectDirectory():Promise<string>;
 
-export function SetConfig(arg1:string,arg2:string):Promise<void>;
+export function SetConfig(arg1:main.Config):Promise<void>;

@@ -8,6 +8,14 @@ import (
   "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
+const dbPath = "./db.sqlite"
+
+func handleError(err error) {
+  if err != nil {
+    fmt.Println(err)
+  }
+}
+
 // App struct
 type App struct {
 	ctx context.Context
@@ -32,9 +40,7 @@ func (a *App) SelectDirectory() string {
     Title: "Select a directory",
   }
   dir, err := runtime.OpenDirectoryDialog(a.ctx, options)
-  if err != nil {
-    fmt.Println(err)
-  }
+  handleError(err)
   return dir
 }
 
@@ -60,29 +66,21 @@ type Track struct {
 }
 
 func (a *App) InitDb() {
-  db, err := sql.Open("sqlite3", "./db.sqlite")
-    if err != nil {
-        fmt.Println(err)
-    }
+  db, err := sql.Open("sqlite3", dbPath)
+  handleError(err)
 
   _, err = db.Exec("CREATE TABLE IF NOT EXISTS `albums` (Id INTEGER PRIMARY KEY, Album TEXT, Artist TEXT, FileFormat TEXT, Tracklist TEXT, IsOnDevice INTEGER)")
-  if err != nil {
-      fmt.Println(err)
-  }
+  handleError(err)
 
   _, err = db.Exec("CREATE TABLE IF NOT EXISTS `config` (Id INTEGER PRIMARY KEY, CollectionPath TEXT, DevicePath TEXT)")
-  if err != nil {
-    fmt.Println(err)
-  }
+  handleError(err)
 
   db.Close()
 }
 
 func (a *App) GetConfig() Config {
-  db, err := sql.Open("sqlite3", "./db.sqlite")
-  if err != nil {
-    fmt.Println(err)
-  }
+  db, err := sql.Open("sqlite3", dbPath)
+  handleError(err)
 
   rows, err := db.Query("SELECT * FROM config ORDER BY Id DESC LIMIT 1")
 
@@ -96,32 +94,20 @@ func (a *App) GetConfig() Config {
     var devicePath string
 
     err = rows.Scan(&id, &collectionPath, &devicePath)
-
-    if err != nil {
-      fmt.Println(err)
-    }
-
-    fmt.Printf("%d %s %s", id, collectionPath, devicePath)
+    handleError(err)
     config = Config{id, collectionPath, devicePath}
   }
   return config
 }
 
-func (a *App) SetConfig(collectionPath, devicePath string) {
-  db, err := sql.Open("sqlite3", "./db.sqlite")
-  if err != nil {
-    fmt.Println(err)
-  }
+func (a *App) SetConfig(c Config) {
+  db, err := sql.Open("sqlite3", dbPath)
+  handleError(err)
 
-  q := fmt.Sprintf("INSERT INTO config VALUES (NULL, '%s', '%s')", collectionPath, devicePath)
-  _, err = db.Exec(q)
-  if err != nil {
-    fmt.Println("Error setting config")
-    fmt.Println(q)
-    fmt.Println(err)
-  }
+  _, err = db.Exec("INSERT INTO config VALUES (NULL, ?, ?)", c.CollectionPath, c.DevicePath)
+  handleError(err)
+
   db.Close()
-
 }
 
 
