@@ -7,6 +7,7 @@ import (
   "path/filepath"
   "errors"
   "strings"
+  "encoding/json"
   "database/sql"
   _ "github.com/mattn/go-sqlite3"
   "github.com/wailsapp/wails/v2/pkg/runtime"
@@ -14,7 +15,7 @@ import (
 
 const dbPath = "./db.sqlite"
 
-func handleError(err error) {
+func printError(err error) {
   if err != nil {
     fmt.Println(err)
   }
@@ -31,8 +32,7 @@ func NewApp() *App {
 	return &App{}
 }
 
-// startup is called when the app starts. The context is saved
-// so we can call the runtime methods
+// startup is called when the app starts. The context is saved so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
   a.InitDb()
@@ -44,47 +44,20 @@ func (a *App) SelectDirectory() string {
     Title: "Select a directory",
   }
   dir, err := runtime.OpenDirectoryDialog(a.ctx, options)
-  handleError(err)
+  printError(err)
   return dir
 }
 
-// database logic
+// config logic
 type Config struct {
   Id int
   CollectionPath string
   DevicePath string
 }
 
-type Album struct {
-  // Id int
-  Album string
-  Artist string
-  FileFormat string
-  Tracklist []Track
-  IsOnDevice bool
-}
-
-type Track struct {
-  Number int
-  Title string
-}
-
-func (a *App) InitDb() {
-  db, err := sql.Open("sqlite3", dbPath)
-  handleError(err)
-
-  _, err = db.Exec("CREATE TABLE IF NOT EXISTS `albums` (Id INTEGER PRIMARY KEY, Album TEXT, Artist TEXT, FileFormat TEXT, Tracklist TEXT, IsOnDevice INTEGER)")
-  handleError(err)
-
-  _, err = db.Exec("CREATE TABLE IF NOT EXISTS `config` (Id INTEGER PRIMARY KEY, CollectionPath TEXT, DevicePath TEXT)")
-  handleError(err)
-
-  db.Close()
-}
-
 func (a *App) GetConfig() Config {
   db, err := sql.Open("sqlite3", dbPath)
-  handleError(err)
+  printError(err)
 
   rows, err := db.Query("SELECT * FROM config ORDER BY Id DESC LIMIT 1")
 
@@ -98,7 +71,7 @@ func (a *App) GetConfig() Config {
     var devicePath string
 
     err = rows.Scan(&id, &collectionPath, &devicePath)
-    handleError(err)
+    printError(err)
     config = Config{id, collectionPath, devicePath}
   }
   a.config = config
@@ -107,31 +80,102 @@ func (a *App) GetConfig() Config {
 
 func (a *App) SetConfig(c Config) {
   db, err := sql.Open("sqlite3", dbPath)
-  handleError(err)
+  printError(err)
 
   _, err = db.Exec("INSERT INTO config VALUES (NULL, ?, ?)", c.CollectionPath, c.DevicePath)
-  handleError(err)
+  printError(err)
 
   db.Close()
+}
+
+
+// database logic
+type Album struct {
+  // Id int
+  Album string
+  Artist string
+  FileFormat string
+  Tracklist string
+  IsOnDevice bool
+}
+
+type Track struct {
+  Number int
+  Title string
+}
+
+func (a *App) InitDb() {
+  db, err := sql.Open("sqlite3", dbPath)
+  printError(err)
+
+  _, err = db.Exec("CREATE TABLE IF NOT EXISTS `albums` (Id INTEGER PRIMARY KEY, Album TEXT, Artist TEXT, FileFormat TEXT, Tracklist TEXT, IsOnDevice INTEGER)")
+  printError(err)
+
+  _, err = db.Exec("CREATE TABLE IF NOT EXISTS `config` (Id INTEGER PRIMARY KEY, CollectionPath TEXT, DevicePath TEXT)")
+  printError(err)
+
+  db.Close()
+}
+
+func (a *App) GetAlbums() []Album {
+  db, err := sql.Open("sqlite3", dbPath)
+  printError(err)
+  
+  rows, err := db.Query("SELECT * FROM albums ORDER BY Artist, Album")
+  printError(err)
+  
+  var albums []Album
+  for rows.Next() {
+    var id int
+    var album string
+    var artist string
+    var fileFormat string
+    var tracklist string
+    var isOnDevice bool
+
+    err = rows.Scan(&id, &album, &artist, &fileFormat, &tracklist, &isOnDevice)
+    printError(err)
+    
+    albums = append(albums, Album{album, artist, fileFormat, tracklist, isOnDevice})
+  }
+  return albums
 }
 
 func AddAlbumToDb(a Album) {
   db, err := sql.Open("sqlite3", dbPath)
-  handleError(err)
-
-  _, err = db.Exec("INSERT INTO albums VALUES (NULL, ?, ?, ?, ?, ?)", a.Album, a.Artist, a.FileFormat, fmt.Sprintf("%#v", a.Tracklist), a.IsOnDevice)
-  handleError(err)
-
-  db.Close()
+  printError(err)
   
+  rows, err := db.Query("SELECT COUNT(*) FROM albums WHERE Album = ? AND Artist = ?", a.Album, a.Artist)
+  printError(err)
+
+  var count int
+  for rows.Next() {
+    err = rows.Scan(&count)
+    printError(err)
+  }
+
+  if count > 0 {
+    _, err = db.Exec("UPDATE albums SET FileFormat = ?, Tracklist = ? WHERE Album = ? AND Artist = ?", a.FileFormat, a.Tracklist, a.Album, a.Artist)
+    printError(err)
+  } else {
+    _, err = db.Exec("INSERT INTO albums VALUES (NULL, ?, ?, ?, ?, ?)", a.Album, a.Artist, a.FileFormat, a.Tracklist, a.IsOnDevice)
+    printError(err)
+  }
+  defer db.Close()
 }
 
-func BuildTracklist(songs []os.DirEntry) []Track {
+func BuildTracklist(songs []os.DirEntry) string {
   var tracklist []Track
   for index, song := range songs {
     tracklist = append(tracklist, Track{index+1, song.Name()})
   }
-  return tracklist
+  
+  res, err := json.Marshal(tracklist)
+  if err != nil {
+    fmt.Println(err)
+  }
+  fmt.Println(string(res))
+  return string(res)
 }
 
 func (a *App) SyncMusicCollection() error {
@@ -140,29 +184,26 @@ func (a *App) SyncMusicCollection() error {
   }
 
   artists, err := os.ReadDir(a.config.CollectionPath)
-  handleError(err)
+  printError(err)
 
   for _, artist := range artists {
     fmt.Println(artist.Name())
     artistDir := filepath.Join(a.config.CollectionPath, artist.Name())
 
     albums, err := os.ReadDir(artistDir)
-    handleError(err)
+    printError(err)
 
     for _, album := range albums {
       albumDir := filepath.Join(artistDir, album.Name())
-      fmt.Println(album.Name())
 
       songs, err := os.ReadDir(albumDir)
-      handleError(err)
+      printError(err)
 
       ext := filepath.Ext(songs[0].Name())
       ext = strings.Replace(ext, ".", "", 1)
       ext = strings.ToUpper(ext)
-      fmt.Println(ext)
 
       tracklist := BuildTracklist(songs)
-      fmt.Println(tracklist)
       
       a := Album{album.Name(), artist.Name(), ext, tracklist, false}
       AddAlbumToDb(a)
