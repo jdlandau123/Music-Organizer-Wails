@@ -42,3 +42,17 @@ hr {
   cursor: pointer;
   background-color: #378033;
 }
+
+.secondaryBtn {
+  border: transparent;
+  background-color: lightgrey;
+  color: black;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.secondaryBtn:hover {
+  cursor: pointer;
+  background-color: grey;
+  color: white;
+}

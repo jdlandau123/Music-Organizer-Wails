@@ -2,23 +2,24 @@
   import { onMount } from 'svelte';
   import { GetAlbums } from '../../wailsjs/go/main/App.js';
   import arrowIcon from '../assets/icons/arrow.svg';
+  import { albumsStore } from '../stores/albumsStore.js';
 
-  let albums = [];
   let allSelected = false;
   let currentSort = {column: 'Artist', direction: 'asc'};
 
   function getAlbums() {
-    GetAlbums().then(a => albums = a);
+    GetAlbums().then(a => $albumsStore = a);
   }
 
   function handleSelectAll(isAllSelected) {
     if (isAllSelected) {
-      for (let a of albums) {
+      for (let a of $albumsStore) {
         a.IsOnDevice = true;
       }
-      albums = [...albums];
+      $albumsStore = [...$albumsStore];
     } else {
       getAlbums();
+      currentSort = {column: 'Artist', direction: 'asc'};
     }
   }
 
@@ -38,13 +39,13 @@
   function sortTable(sortObj) {
     switch (sortObj.direction) {
       case 'asc':
-        albums = albums.sort((a, b) => (a[sortObj.column] > b[sortObj.column]) ? 1 : ((b[sortObj.column] > a[sortObj.column]) ? -1 : 0));
+        $albumsStore = $albumsStore.sort((a, b) => (a[sortObj.column] > b[sortObj.column]) ? 1 : ((b[sortObj.column] > a[sortObj.column]) ? -1 : 0));
         break;
       case 'desc':
-        albums = albums.sort((a, b) => (a[sortObj.column] < b[sortObj.column]) ? 1 : ((b[sortObj.column] < a[sortObj.column]) ? -1 : 0));
+        $albumsStore = $albumsStore.sort((a, b) => (a[sortObj.column] < b[sortObj.column]) ? 1 : ((b[sortObj.column] < a[sortObj.column]) ? -1 : 0));
         break;
       default:
-        albums = albums.sort((a, b) => (a[sortObj.column] > b[sortObj.column]) ? 1 : ((b[sortObj.column] > a[sortObj.column]) ? -1 : 0));
+        $albumsStore = $albumsStore.sort((a, b) => (a[sortObj.column] > b[sortObj.column]) ? 1 : ((b[sortObj.column] > a[sortObj.column]) ? -1 : 0));
         break;
     }
   }
@@ -89,7 +90,7 @@
       </div>
     </th>
   </tr>
-  {#each albums as row}
+  {#each $albumsStore as row}
     <tr>
       <td>
         <input class="checkbox" type="checkbox" bind:checked={row.IsOnDevice} />
@@ -106,7 +107,7 @@
     display: block;
     width: 60%;
     border-collapse: collapse;
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 100px);
     overflow: auto;
   }
 
