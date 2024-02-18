@@ -3,6 +3,7 @@
   import { GetAlbums } from '../../wailsjs/go/main/App.js';
   import arrowIcon from '../assets/icons/arrow.svg';
   import { albumsStore } from '../stores/albumsStore.js';
+  import { selectedAlbumStore } from '../stores/selectedAlbumStore.js';
 
   let allSelected = false;
   let currentSort = {column: 'Artist', direction: 'asc'};
@@ -91,9 +92,9 @@
     </th>
   </tr>
   {#each $albumsStore as row}
-    <tr>
+    <tr on:click={() => $selectedAlbumStore = row}>
       <td>
-        <input class="checkbox" type="checkbox" bind:checked={row.IsOnDevice} />
+        <input class="checkbox" type="checkbox" bind:checked={row.IsOnDevice} on:click={e => e.stopPropagation()} />
       </td>
       <td>{row.Artist}</td>
       <td>{row.Album}</td>

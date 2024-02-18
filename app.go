@@ -213,3 +213,13 @@ func (a *App) SyncMusicCollection() error {
 }
 
 
+func (a *App) SyncDevice() error {
+  if _, err := os.Stat(a.config.CollectionPath); os.IsNotExist(err) {
+    return errors.New("Music Collection Not Found")
+  }
+
+  if _, err := os.Stat(a.config.DevicePath); os.IsNotExist(err) {
+    return errors.New("Device Not Found")
+  }
+  return nil
+}

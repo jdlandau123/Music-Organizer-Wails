@@ -22,6 +22,10 @@ export function SetConfig(arg1) {
   return window['go']['main']['App']['SetConfig'](arg1);
 }
 
+export function SyncDevice() {
+  return window['go']['main']['App']['SyncDevice']();
+}
+
 export function SyncMusicCollection() {
   return window['go']['main']['App']['SyncMusicCollection']();
 }
