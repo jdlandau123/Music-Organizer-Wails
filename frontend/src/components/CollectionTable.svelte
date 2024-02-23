@@ -117,6 +117,13 @@
     overflow: auto;
   }
 
+  th {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1;
+  }
+
   tr {
     border-bottom: 1px solid lightgrey;
   }

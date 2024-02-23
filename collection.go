@@ -173,7 +173,7 @@ func AddAlbumToDb(a Album) (int, error) {
 func BuildTracklist(songs []os.DirEntry) (string, error) {
 	var tracklist []Track
 	for index, song := range songs {
-		if !CheckFileExtension(song.Name()) {
+		if CheckFileExtension(song.Name()) {
 			tracklist = append(tracklist, Track{index + 1, song.Name()})
 		}
 	}
