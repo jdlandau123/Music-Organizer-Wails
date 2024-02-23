@@ -8,10 +8,13 @@
   let allSelected = false;
   let currentSort = {column: 'Artist', direction: 'asc'};
 
-  export function getAlbums() {
-    GetAlbums().then(a => {
-      if (a) $albumsStore = a;
-    });
+  export async function getAlbums() {
+    try {
+      const albums = await GetAlbums();
+      if (albums) $albumsStore = albums;
+    } catch(err) {
+      console.log(err);
+    }
   }
 
   function handleSelectAll(isAllSelected) {

@@ -4,16 +4,11 @@ import (
   "fmt"
   "path/filepath"
   "slices"
+  "errors"
   "strings"
   "database/sql"
   _ "github.com/mattn/go-sqlite3"
 )
-
-func PrintError(err error) {
-  if err != nil {
-    fmt.Println(err)
-  }
-}
 
 func CheckFileExtension(filename string) bool {
   var supportedExtensions []string = []string{".mp3", ".flac", ".wav"}
@@ -28,19 +23,27 @@ func GetFileFormat(filename string) string {
   return ext
 }
 
-func CheckAlbumExists(a Album) bool {
+func CheckAlbumExists(a Album) (bool, error) {
   db, err := sql.Open("sqlite3", dbPath)
-  PrintError(err)
+  if err != nil {
+    fmt.Println(err)
+    return false, errors.New("Error connecting to database")
+  }
   
   rows, err := db.Query("SELECT COUNT(*) FROM albums WHERE Album = ? AND Artist = ?", a.Album, a.Artist)
-  PrintError(err)
+  if err != nil {
+    fmt.Println(err)
+    return false, errors.New("Error querying database")
+  }
 
   defer db.Close()
 
   var count int
   for rows.Next() {
     err = rows.Scan(&count)
-    PrintError(err)
+    if err != nil {
+      fmt.Println(err)
+    }
   }
-  return count > 0
+  return count > 0, nil
 }

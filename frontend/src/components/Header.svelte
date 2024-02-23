@@ -11,27 +11,37 @@
     DevicePath: ''
   };
 
-  function setCollectionPath() {
-    SelectDirectory().then(path => config.CollectionPath = path);
+  async function setConfigPath(type) {
+    try {
+      const path = await SelectDirectory();
+      if (type === 'collection') config.CollectionPath = path;
+      else if (type === 'device') config.DevicePath = path;
+    } catch(err) {
+      console.log(err);
+    }
   }
 
-  function setDevicePath() {
-    SelectDirectory().then(path => config.DevicePath = path);
-  }
-
-  function setConfig() {
-    SetConfig(config).then(() => {
+  async function setConfig() {
+    try {
+      await SetConfig(config);
       saved = true;
       getConfig();
       setTimeout(() => {
         saved = false;
         showMenu = false;
       }, 3000);
-    });
+    } catch(err) {
+      console.log(err);
+    }
   }
 
-  function getConfig() {
-    GetConfig().then(c => config = c);
+  async function getConfig() {
+    try {
+      const c = await GetConfig();
+      config = c;
+    } catch(err) {
+      console.log(err);
+    }
   }
 
   onMount(() => getConfig());
@@ -48,13 +58,13 @@
     <h3>Settings</h3>
     <div class="configSetting">
       Collection:
-      <button on:click={setCollectionPath} class="configBtn">
+      <button on:click={() => setConfigPath('collection')} class="configBtn">
         {config.CollectionPath ? config.CollectionPath : 'Select Collection Directory'}
       </button>
     </div>
     <div class="configSetting">
       Device:
-      <button on:click={setDevicePath} class="configBtn">
+      <button on:click={() => setConfigPath('device')} class="configBtn">
         {config.DevicePath ? config.DevicePath : 'Select Device Directory'}
       </button>
     </div>

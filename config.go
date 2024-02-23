@@ -1,6 +1,8 @@
 package main
 
 import (
+  "fmt"
+  "errors"
   "database/sql"
   _ "github.com/mattn/go-sqlite3"
   "github.com/wailsapp/wails/v2/pkg/runtime"
@@ -13,19 +15,25 @@ type Config struct {
 }
 
 // opens file explorer and returns user selected dir path 
-func (a *App) SelectDirectory() string {
+func (a *App) SelectDirectory() (string, error) {
   options := runtime.OpenDialogOptions{
     Title: "Select a directory",
   }
   dir, err := runtime.OpenDirectoryDialog(a.ctx, options)
-  PrintError(err)
-  return dir
+  if err != nil {
+    fmt.Println(err)
+    return "", errors.New("Can't open directory")
+  }
+  return dir, nil
 }
 
 
-func (a *App) GetConfig() Config {
+func (a *App) GetConfig() (Config, error) {
   db, err := sql.Open("sqlite3", dbPath)
-  PrintError(err)
+  if err != nil {
+    fmt.Println(err)
+    return Config{}, errors.New("Error connecting to database")
+  }
 
   rows, err := db.Query("SELECT * FROM config ORDER BY Id DESC LIMIT 1")
 
@@ -39,21 +47,30 @@ func (a *App) GetConfig() Config {
     var devicePath string
 
     err = rows.Scan(&id, &collectionPath, &devicePath)
-    PrintError(err)
+    if err != nil {
+      fmt.Println(err)
+    }
     config = Config{id, collectionPath, devicePath}
   }
   a.config = config
-  return config
+  return config, nil
 }
 
 
-func (a *App) SetConfig(c Config) {
+func (a *App) SetConfig(c Config) error {
   db, err := sql.Open("sqlite3", dbPath)
-  PrintError(err)
+  if err != nil {
+    fmt.Println(err)
+    return errors.New("Error connecting to database")
+  }
 
   _, err = db.Exec("INSERT INTO config VALUES (NULL, ?, ?)", c.CollectionPath, c.DevicePath)
-  PrintError(err)
+  if err != nil {
+    fmt.Println(err)
+    return errors.New("Error inserting row into config table")
+  }
 
-  db.Close()
+  defer db.Close()
+  return nil
 }
 
