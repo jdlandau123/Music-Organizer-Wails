@@ -14,6 +14,14 @@ export function InitDb() {
   return window['go']['main']['App']['InitDb']();
 }
 
+export function RemoveAlbumsFromDevice(arg1) {
+  return window['go']['main']['App']['RemoveAlbumsFromDevice'](arg1);
+}
+
+export function ScanDevice() {
+  return window['go']['main']['App']['ScanDevice']();
+}
+
 export function SelectDirectory() {
   return window['go']['main']['App']['SelectDirectory']();
 }
@@ -22,10 +30,14 @@ export function SetConfig(arg1) {
   return window['go']['main']['App']['SetConfig'](arg1);
 }
 
-export function SyncDevice() {
-  return window['go']['main']['App']['SyncDevice']();
+export function SyncDevice(arg1) {
+  return window['go']['main']['App']['SyncDevice'](arg1);
 }
 
 export function SyncMusicCollection() {
   return window['go']['main']['App']['SyncMusicCollection']();
+}
+
+export function TransferAlbum(arg1) {
+  return window['go']['main']['App']['TransferAlbum'](arg1);
 }

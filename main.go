@@ -8,6 +8,9 @@ import (
   "github.com/wailsapp/wails/v2/pkg/options/linux"
 )
 
+// database location constant
+const dbPath = "./db.sqlite"
+
 //go:embed all:frontend/dist
 var assets embed.FS
 

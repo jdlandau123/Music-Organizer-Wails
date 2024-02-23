@@ -28,6 +28,8 @@
       <p>{track?.num} - {track?.title}</p>
     {/each}
   </div>
+{:else}
+  <p>Select an album to view details</p>
 {/if}
 
 <style>

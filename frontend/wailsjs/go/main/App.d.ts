@@ -8,10 +8,16 @@ export function GetConfig():Promise<main.Config>;
 
 export function InitDb():Promise<void>;
 
+export function RemoveAlbumsFromDevice(arg1:Array<number>):Promise<void>;
+
+export function ScanDevice():Promise<void>;
+
 export function SelectDirectory():Promise<string>;
 
 export function SetConfig(arg1:main.Config):Promise<void>;
 
-export function SyncDevice():Promise<void>;
+export function SyncDevice(arg1:Array<number>):Promise<void>;
 
 export function SyncMusicCollection():Promise<void>;
+
+export function TransferAlbum(arg1:main.Album):Promise<void>;

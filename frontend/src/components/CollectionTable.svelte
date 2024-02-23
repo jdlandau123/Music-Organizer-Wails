@@ -8,8 +8,10 @@
   let allSelected = false;
   let currentSort = {column: 'Artist', direction: 'asc'};
 
-  function getAlbums() {
-    GetAlbums().then(a => $albumsStore = a);
+  export function getAlbums() {
+    GetAlbums().then(a => {
+      if (a) $albumsStore = a;
+    });
   }
 
   function handleSelectAll(isAllSelected) {
@@ -108,7 +110,7 @@
     display: block;
     width: 60%;
     border-collapse: collapse;
-    max-height: calc(100vh - 100px);
+    max-height: calc(100vh - 120px);
     overflow: auto;
   }
 
