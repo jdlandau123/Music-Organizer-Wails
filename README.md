@@ -1,16 +1,14 @@
-# README
+# Music Organizer
 
-## About
+This is a simple application that I built for myself to easily track my music collection and sync albums back and forth to my iPod.
+I found this project very valuable for learning Go because it allowed me to explore many aspects of the language including
+database interactions, file system operations, concurrency with goroutines, and other common programming tasks.
 
-This is the official Wails Svelte template.
 
-## Live Development
+Tools Used:
+- Go (with the Wails framework)
+- Svelte
+- Sqlite
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
 
-## Building
-
-To build a redistributable, production mode package, use `wails build`.
+![music-organizer-screenshot](https://github.com/jdlandau123/Music-Organizer-Wails/assets/46530995/6fbdd5fc-f673-47e6-942e-91c775b8e6e6)
