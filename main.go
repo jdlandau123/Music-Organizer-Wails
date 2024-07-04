@@ -2,10 +2,11 @@ package main
 
 import (
 	"embed"
+
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
-  "github.com/wailsapp/wails/v2/pkg/options/linux"
+	"github.com/wailsapp/wails/v2/pkg/options/linux"
 )
 
 // database location constant
@@ -24,8 +25,8 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "Music Organizer",
-		Width:  1500,
-		Height: 850,
+		Width:  1200,
+		Height: 700,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
@@ -34,9 +35,9 @@ func main() {
 		Bind: []interface{}{
 			app,
 		},
-    Linux: &linux.Options{
-      Icon: icon,
-    },
+		Linux: &linux.Options{
+			Icon: icon,
+		},
 	})
 
 	if err != nil {
