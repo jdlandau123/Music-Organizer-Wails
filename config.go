@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	// _ "github.com/mattn/go-sqlite3"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	_ "modernc.org/sqlite"
 )
